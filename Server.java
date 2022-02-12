@@ -59,6 +59,7 @@ public class Server
  
     public static void main(String args[])
     {
+        //Using port 5000 on router
         Server server = new Server(5000);
     }
 }
