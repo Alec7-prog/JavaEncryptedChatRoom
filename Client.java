@@ -1,16 +1,18 @@
 import java.net.*;
 import java.io.*;
- 
+import java.util.*; 
+
 public class Client
 {
     // initialize socket and input output streams
-    private Socket socket            = null;
-    private DataInputStream  input   = null;
-    private DataOutputStream out     = null;
+    private Socket               socket  = null;
+    private BufferedReader       input   = null;
+    private BufferedWriter       out     = null;
  
     // constructor to put ip address and port
     public Client(String address, int port)
     {
+        Scanner s = new Scanner(System.in);
         // establish a connection
         try
         {
@@ -18,10 +20,22 @@ public class Client
             System.out.println("Connected");
  
             // takes input from terminal
-            input  = new DataInputStream(System.in);
- 
+            input  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             // sends output to the socket
-            out    = new DataOutputStream(socket.getOutputStream());
+            out    = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        
+            while(true)
+            {
+                String line = s.nextLine();
+    
+                out.write(line);
+                out.newLine();
+                out.flush();
+
+                System.out.println("Server: "+ input.readLine());
+                
+                if(line.equalsIgnoreCase("Exit")) break;
+            }
         }
         catch(UnknownHostException u)
         {
@@ -31,35 +45,18 @@ public class Client
         {
             System.out.println(i);
         }
- 
-        // string to read message from input
-        String line = "";
- 
-        // keep reading until "Over" is input
-        while (!line.equals("Over"))
-        {
-            try
-            {
-                line = input.readUTF();
-                out.writeUTF(line);
-            }
-            catch(IOException i)
-            {
-                System.out.println(i);
-            }
-        }
- 
-        // close the connection
-        try
-        {
+        finally {
+        { try{
             input.close();
             out.close();
             socket.close();
-        }
-        catch(IOException i)
+            s.close();
+        }catch(Exception e)
         {
-            System.out.println(i);
+            e.printStackTrace();
         }
+        }
+    }
     }
  
     public static void main(String args[])
